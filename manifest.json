@@ -1,0 +1,29 @@
+{
+  "manifest_version": 3,
+  "name": "Kana Replacer",
+  "version": "1.1",
+  "description": "Replace Latin alphabet syllables with Japanese Kana. Configurable options available.",
+  "permissions": [
+    "storage",
+    "scripting"
+  ],
+  "host_permissions": [
+    "https://*/*",
+    "http://*/*"
+  ],
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://*/*",
+        "http://*/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ]
+}
