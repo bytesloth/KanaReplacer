@@ -171,17 +171,20 @@ function replaceText(node, options) {
 
         // Replace words from the map
         for (const [target, kana] of Object.entries(wordMap)) {
-            let kanaType
-            if (options.kanaType == "Hiragana") {
-                kanaType = "hg";
+            const random = Math.random()
+            if (random <= (options.replacementPercentage / 100)) {
+                let kanaType
+                if (options.kanaType == "Hiragana") {
+                    kanaType = "hg";
+                }
+                if (options.kanaType == "Katakana") {
+                    kanaType = "kk";
+                }
+                const regex = new RegExp(target, 'gi'); // Match whole words, case-insensitive
+                var count = (text.match(regex) || []).length
+                addAmount(syllablesHistogram, target, count)
+                text = text.replace(regex, kana[kanaType])
             }
-            if (options.kanaType == "Katakana") {
-                kanaType = "kk";
-            }
-            const regex = new RegExp(target, 'gi'); // Match whole words, case-insensitive
-            var count = (text.match(regex) || []).length
-            addAmount(syllablesHistogram, target, count)
-            text = text.replace(regex, kana[kanaType])
         }
 
         node.nodeValue = text;
@@ -219,7 +222,7 @@ function printHistogram(histogram) {
             if (x[0] != " ") {
                 sum += x[0].length * x[1]
             }
-            
+
         }
     )
     return sum
@@ -267,7 +270,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
 // Initial replacement on content script load
 chrome.storage.sync.get(
-    { enabled: true, kanaType: "Hiragana", useBasics: true, useVariants: true, useCombinations: true },
+    { enabled: true, replacementPercentage: 100, kanaType: "Hiragana", useBasics: true, useVariants: true, useCombinations: true },
     (options) => {
         // Apply the replacement
         syllablesHistogram = {}
@@ -276,7 +279,7 @@ chrome.storage.sync.get(
         countChars(document.body)
         replaceText(document.body, options)
         findNotReplacedText(document.body)
-        
+
         let sumReplaced = printHistogram(syllablesHistogram)
         let sumNotReplaced = printHistogram(notReplacedHistogram)
         console.log(sumReplaced, sumNotReplaced, charCount)

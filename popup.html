@@ -11,6 +11,11 @@
     <input type="checkbox" id="enabled">
     Enable
   </label>
+
+  <br>
+  <label>Replacement Rate <output id="showPercentage">100</output>%</label>
+  <input type="range" min="1" max="100" value="100" id="replacementPercentage">
+
   <br>
   <label>
     <select id="kanaType">
@@ -18,19 +23,22 @@
       <option value="Katakana">Katakana</option>
     </select>
   </label>
+
   <br>
   <label>
     <input type="checkbox" id="useBasics">Basics
   </label>
+
   <br>
   <label>
     <input type="checkbox" id="useVariants">Variants
   </label>
   <br>
+
   <label>
     <input type="checkbox" id="useCombinations">Combinations
   </label>
-  <script src="popup.js"></script> 
+  <script src="popup.js"></script>
 </body>
 
 </html>
