@@ -1,1 +1,1 @@
-Replace latin and german letters (a-zäöüß) with japanese Kana as Googlee Chrome Extension.
+Replace latin and german letters (a-zäöüß) with japanese Kana as Google Chrome Extension.
