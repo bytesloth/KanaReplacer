@@ -4,7 +4,7 @@ const prepare = {
     "ö": { "hg": "oe", "kk": "oe" },
     "ü": { "hg": "ue", "kk": "ue" },
     "ß": { "hg": "ss", "kk": "ss" },
-    " ": { "hg": "‌ ‌ ‌ ‌", "kk": "‌ ‌ ‌ ‌" }
+    " ": { "hg": "‌ ", "kk": "‌ " }
 };
 
 const basicThree = {
@@ -172,7 +172,7 @@ function replaceText(node, options) {
         // Replace words from the map
         for (const [target, kana] of Object.entries(wordMap)) {
             const random = Math.random()
-            if (random <= (options.replacementPercentage / 100)) {
+            //if (isSpace || random <= (options.replacementPercentage / 100)) {
                 let kanaType
                 if (options.kanaType == "Hiragana") {
                     kanaType = "hg";
@@ -183,8 +183,16 @@ function replaceText(node, options) {
                 const regex = new RegExp(target, 'gi'); // Match whole words, case-insensitive
                 var count = (text.match(regex) || []).length
                 addAmount(syllablesHistogram, target, count)
-                text = text.replace(regex, kana[kanaType])
-            }
+                let toReplace = kana[kanaType]
+                if (target == " ") {
+                    if (options.amountOfSpaces == 1) {
+                        continue
+                    } else {
+                        toReplace = toReplace.repeat(options.amountOfSpaces)
+                    }
+                }
+                text = text.replace(regex, toReplace)
+            //}
         }
 
         node.nodeValue = text;
@@ -204,7 +212,7 @@ function addAmount(histogram, key, amount) {
     }
 }
 
-function printHistogram(histogram) {
+function printHistogram(histogram, log) {
     let sortable = [];
     for (var value in histogram) {
         sortable.push([value, histogram[value]])
@@ -214,11 +222,15 @@ function printHistogram(histogram) {
         return b[1] - a[1];
     });
     //console.log(sortable)
-    console.log("\n")
+    if (log) {
+        console.log("\n")
+    }
     sum = 0
     sortable.forEach(
         (x) => {
-            console.log(x[0], x[1])
+            if (log) {
+                console.log(x[0], x[1])
+            }
             if (x[0] != " ") {
                 sum += x[0].length * x[1]
             }
@@ -269,19 +281,20 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 });
 
 // Initial replacement on content script load
-chrome.storage.sync.get(
-    { enabled: true, replacementPercentage: 100, kanaType: "Hiragana", useBasics: true, useVariants: true, useCombinations: true },
-    (options) => {
+const domain = getDomainFromURL(window.location.href);
+chrome.storage.sync.get([domain],
+    (allOptions) => {
+        const siteOptions = allOptions[domain] || defaults
         // Apply the replacement
         syllablesHistogram = {}
         notReplacedHistogram = {}
         charCount = 0
         countChars(document.body)
-        replaceText(document.body, options)
+        replaceText(document.body, siteOptions)
         findNotReplacedText(document.body)
 
-        let sumReplaced = printHistogram(syllablesHistogram)
-        let sumNotReplaced = printHistogram(notReplacedHistogram)
+        let sumReplaced = printHistogram(syllablesHistogram, siteOptions.log)
+        let sumNotReplaced = printHistogram(notReplacedHistogram, siteOptions.log)
         console.log(sumReplaced, sumNotReplaced, charCount)
     }
 );

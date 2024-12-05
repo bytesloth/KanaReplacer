@@ -5,11 +5,13 @@
   "description": "Replace Latin alphabet syllables with Japanese Kana. Configurable options available.",
   "permissions": [
     "storage",
-    "scripting"
+    "scripting",
+    "activeTab"
   ],
   "host_permissions": [
     "https://*/*",
-    "http://*/*"
+    "http://*/*",
+    "<all_urls>"
   ],
   "action": {
     "default_popup": "popup.html"
@@ -18,9 +20,11 @@
     {
       "matches": [
         "https://*/*",
-        "http://*/*"
+        "http://*/*",
+        "<all_urls>"
       ],
       "js": [
+        "utils.js",
         "content.js"
       ],
       "run_at": "document_idle"
